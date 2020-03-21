@@ -4,6 +4,8 @@ public class PlayerController : MonoBehaviour
 {
     public float walkSpeed = 2;
     public float runSpeed = 6;
+    public float glideSpeedMultMax = 2;
+    public float glideDampMultMax = 10;
     public float gravity = -12;
     public float jumpHeight = 1;
 
@@ -23,6 +25,7 @@ public class PlayerController : MonoBehaviour
     private CharacterController character;
     private bool isGliding;
     private float glideDampening;
+    private float glideSpeedMult;
 
     private void Start()
     {
@@ -72,7 +75,7 @@ public class PlayerController : MonoBehaviour
         currentSpeed = Mathf.SmoothDamp(currentSpeed, targetSpeed, ref speedSmoothVelocity, GetModifiedSmoothTime(speedSmoothTime));
 
         velocityY += Time.deltaTime * gravity * glideDampening;
-        Vector3 velocity = transform.forward * currentSpeed + Vector3.up * velocityY;
+        Vector3 velocity = transform.forward * currentSpeed * glideSpeedMult + Vector3.up * velocityY;
         character.Move(velocity * Time.deltaTime);
 
         if (character.isGrounded)
@@ -94,10 +97,12 @@ public class PlayerController : MonoBehaviour
     {
         if (!character.isGrounded && isGliding)
         {
-            glideDampening =  0.20f;
+            glideDampening =  1 / glideDampMultMax;
+            glideSpeedMult = glideSpeedMultMax;
         } else
         {
             glideDampening = 1;
+            glideSpeedMult = 1;
         }
     }
 
